@@ -16,6 +16,16 @@ public class MapMgr : SingletonScript<MapMgr>
     public Transform[] prefabs;
 
     /// <summary>
+    /// 漂浮物预制体
+    /// </summary>
+    public Transform pfbFloat;
+
+    /// <summary>
+    /// 漂浮窗节点
+    /// </summary>
+    public Transform floatNode;
+
+    /// <summary>
     /// 角色节点
     /// </summary>
     public Transform[] characterNodes;
@@ -214,6 +224,8 @@ public class MapMgr : SingletonScript<MapMgr>
     /// </summary>
     void SetCharacterPos()
     {
+        CharacterFloatUI floatUI;
+
         // 遍历敌人列表
         Transform enemy;
         foreach (var item in listEnemies)
@@ -232,6 +244,12 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 记录
             item.node = enemy;
+
+            // 生成漂浮节点
+            floatUI = Instantiate(pfbFloat, floatNode).GetComponent<CharacterFloatUI>();
+            floatUI.target = item.node;
+            floatUI.SetName(item.name);
+            item.floatUI = floatUI;
         }
 
         // 遍历成员列表
@@ -252,6 +270,12 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 记录
             item.node = member;
+
+            // 生成漂浮节点
+            floatUI = Instantiate(pfbFloat, floatNode).GetComponent<CharacterFloatUI>();
+            floatUI.target = item.node;
+            floatUI.SetName(item.name);
+            item.floatUI = floatUI;
         }
     }
 

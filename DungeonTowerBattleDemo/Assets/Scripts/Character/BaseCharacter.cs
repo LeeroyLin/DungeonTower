@@ -11,6 +11,7 @@ public class BaseCharacter
     public int colIdx;
     public bool isMoving;
     public Transform node;
+    public CharacterFloatUI floatUI;
     public float moveSpeed;
     #endregion
 
