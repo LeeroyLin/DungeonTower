@@ -103,6 +103,18 @@ public class CharacterCtrller : SingletonScript<CharacterCtrller>
                 // 是否目标与开始下标不同
                 if (_startPosIdx != _targetPosIdx)
                 {
+                    // 获取该位置数据
+                    MapTileData tileData = MapMgr.Ins.mapMember[_targetPosIdx.x, _targetPosIdx.y];
+
+                    // 是否有障碍物
+                    if (tileData.obstacle > 0)
+                    {
+                        // 隐藏路径
+                        line.gameObject.SetActive(false);
+
+                        return;
+                    }
+
                     // 尝试显示路径
                     TryShowPath();
                 }
