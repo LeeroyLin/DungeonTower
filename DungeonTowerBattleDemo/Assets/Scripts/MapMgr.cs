@@ -39,28 +39,29 @@ public class MapMgr : SingletonScript<MapMgr>
     /// 半地图高
     /// </summary>
     public int halfHeight;
-    #endregion
 
-    #region 私有字段
     /// <summary>
     /// 成员列表
     /// </summary>
-    List<Member> _listMembers = new List<Member>();
+    public List<Member> listMembers = new List<Member>();
 
     /// <summary>
     /// 敌人列表
     /// </summary>
-    List<Enemy> _listEnemies = new List<Enemy>();
+    public List<Enemy> listEnemies = new List<Enemy>();
 
     /// <summary>
     /// 己方地图数据
     /// </summary>
-    MapTileData[,] _mapMember;
+    public MapTileData[,] mapMember;
 
     /// <summary>
     /// 地方地图数据
     /// </summary>
-    MapTileData[,] _mapEnemy;
+    public MapTileData[,] mapEnemy;
+    #endregion
+
+    #region 私有字段
     #endregion
 
     #region 默认回调
@@ -84,7 +85,8 @@ public class MapMgr : SingletonScript<MapMgr>
     /// </summary>
     void Update()
     {
-        
+        // 移动角色
+        MoveCharacters();
     }
     #endregion
 
@@ -98,10 +100,10 @@ public class MapMgr : SingletonScript<MapMgr>
     public void AddMemberCharacter(Member member, int rowIdx, int colIdx)
     {
         member.SetPosIdx(rowIdx, colIdx);
-        _listMembers.Add(member);
-        int idx = _listMembers.Count - 1;
+        listMembers.Add(member);
+        int idx = listMembers.Count - 1;
 
-        _mapMember[rowIdx, colIdx].SetCharacter(idx, true);
+        mapMember[rowIdx, colIdx].character = member;
     }
 
     /// <summary>
@@ -113,10 +115,42 @@ public class MapMgr : SingletonScript<MapMgr>
     public void AddEnemyCharacter(Enemy enemy, int rowIdx, int colIdx)
     {
         enemy.SetPosIdx(rowIdx, colIdx);
-        _listEnemies.Add(enemy);
-        int idx = _listEnemies.Count - 1;
+        listEnemies.Add(enemy);
+        int idx = listEnemies.Count - 1;
 
-        _mapEnemy[rowIdx, colIdx].SetCharacter(idx, true);
+        mapEnemy[rowIdx, colIdx].character = enemy;
+    }
+
+    /// <summary>
+    /// 通过下标获取位置
+    /// </summary>
+    /// <param name="rowIdx"></param>
+    /// <param name="colIdx"></param>
+    /// <param name="isMember"></param>
+    /// <param name="y"></param>
+    public Vector3 GetPosByIdx(int rowIdx, int colIdx, bool isMember, float y = 0)
+    {
+        Vector3 pos = Vector3.zero;
+
+        // 计算平台中心z位置
+        float planeZ = isMember ? planes[0].position.z : planes[1].position.z;
+
+        pos.x = -width * 0.5f * perSize + (0.5f + colIdx) * perSize;
+        pos.z = planeZ + -halfHeight * 0.5f * perSize + (0.5f + rowIdx) * perSize;
+        pos.y = y;
+
+        return pos;
+    }
+
+    /// <summary>
+    /// 寻路
+    /// </summary>
+    /// <param name="startPosIdx"></param>
+    /// <param name="targetPosIdx"></param>
+    /// <param name="isMember"></param>
+    public List<Vector2Int> GetPath(Vector2Int startPosIdx, Vector2Int targetPosIdx, bool isMember)
+    {
+        return AStar.GetPath(isMember ? mapMember : mapEnemy, startPosIdx, targetPosIdx);
     }
     #endregion
 
@@ -127,14 +161,14 @@ public class MapMgr : SingletonScript<MapMgr>
     void SetMapData()
     {
         // 初始化地图列表
-        _mapMember = new MapTileData[halfHeight, width];
-        _mapEnemy = new MapTileData[halfHeight, width];
+        mapMember = new MapTileData[halfHeight, width];
+        mapEnemy = new MapTileData[halfHeight, width];
         for (int i = 0; i < halfHeight; i++)
         {
             for (int t = 0; t < width; t++)
             {
-                _mapMember[i, t] = new MapTileData(i, t);
-                _mapEnemy[i, t] = new MapTileData(i, t);
+                mapMember[i, t] = new MapTileData(i, t);
+                mapEnemy[i, t] = new MapTileData(i, t);
             }
         }
 
@@ -182,7 +216,7 @@ public class MapMgr : SingletonScript<MapMgr>
     {
         // 遍历敌人列表
         Transform enemy;
-        foreach (var item in _listEnemies)
+        foreach (var item in listEnemies)
         {
             // 生成敌人预制体
             enemy = Instantiate(prefabs[0]);
@@ -195,11 +229,14 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 设置转向
             enemy.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+
+            // 记录
+            item.node = enemy;
         }
 
         // 遍历成员列表
         Transform member;
-        foreach (var item in _listMembers)
+        foreach (var item in listMembers)
         {
             // 生成敌人预制体
             member = Instantiate(prefabs[1]);
@@ -212,6 +249,9 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 设置转向
             member.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+
+            // 记录
+            item.node = member;
         }
     }
 
@@ -230,7 +270,23 @@ public class MapMgr : SingletonScript<MapMgr>
         pos.x = -width * 0.5f * perSize + (0.5f + character.colIdx) * perSize;
         pos.z = planeZ + -halfHeight * 0.5f * perSize + (0.5f + character.rowIdx) * perSize;
 
-        return pos;
+        return GetPosByIdx(character.rowIdx, character.colIdx, character.isMember);
+    }
+
+    /// <summary>
+    /// 移动角色
+    /// </summary>
+    void MoveCharacters()
+    {
+        // 遍历所有角色执行移动
+        foreach (var item in listMembers)
+        {
+            item.DoMove();
+        }
+        foreach (var item in listEnemies)
+        {
+            item.DoMove();
+        }
     }
     #endregion
 }
