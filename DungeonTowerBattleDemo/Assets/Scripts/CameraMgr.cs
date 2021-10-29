@@ -14,7 +14,7 @@ public class CameraMgr : SingletonScript<CameraMgr>
     #region 私有字段
     Camera _camera;
     Vector3 _lastPos;
-    Vector3 _moveDir; 
+    Vector3 _moveDir;
     #endregion
 
     #region 默认回调
@@ -42,9 +42,6 @@ public class CameraMgr : SingletonScript<CameraMgr>
     {
         // 检测输入
         CheckInput();
-
-        // 执行移动
-        DoMove();
     }
     #endregion
 
@@ -54,8 +51,6 @@ public class CameraMgr : SingletonScript<CameraMgr>
     /// </summary>
     void CheckInput()
     {
-        _moveDir = Vector3.zero;
-
         // 鼠标中间按下
         if (Input.GetMouseButtonDown(2))
         {
@@ -65,10 +60,12 @@ public class CameraMgr : SingletonScript<CameraMgr>
         // 鼠标中间拖动
         else if (Input.GetMouseButton(2))
         {
-            // 设置移动
-            _moveDir.x = Input.mousePosition.x - _lastPos.x;
-            _moveDir.z = Input.mousePosition.y - _lastPos.y;
-            _moveDir = -_moveDir;
+            _moveDir = Vector3.zero;
+            _moveDir.x = _lastPos.x - Input.mousePosition.x;
+            _moveDir.z = _lastPos.y - Input.mousePosition.y;
+
+            // 执行移动
+            DoMove();
 
             // 记录位置
             _lastPos = Input.mousePosition;
@@ -80,7 +77,7 @@ public class CameraMgr : SingletonScript<CameraMgr>
     /// </summary>
     void DoMove()
     {
-        transform.Translate(_moveDir * moveSpeed * Time.deltaTime, Space.World);
+        transform.Translate(_moveDir * moveSpeed, Space.World);
     }
     #endregion
 }

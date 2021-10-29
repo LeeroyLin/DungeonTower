@@ -79,7 +79,7 @@ public class CharacterFloatUI : MonoBehaviour
         Vector3 viewport = Camera.main.WorldToViewportPoint(targetPos);
         viewport.x -= 0.5f;
         viewport.y -= 0.5f;
-        _rectTrans.anchoredPosition = new Vector2(viewport.x * Screen.width, viewport.y * Screen.height);
+        _rectTrans.anchoredPosition = new Vector2(viewport.x * 1920, viewport.y * 1080);
     }
     #endregion
 }
