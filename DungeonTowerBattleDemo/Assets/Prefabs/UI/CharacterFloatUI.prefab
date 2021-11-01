@@ -669,3 +669,4 @@ MonoBehaviour:
   transVit: {fileID: 3286919200667503912}
   textName: {fileID: 3286919201081168977}
   target: {fileID: 0}
+  offset: {x: 0, y: 50}

@@ -13,6 +13,7 @@ public class BaseCharacter
     public Transform node;
     public CharacterFloatUI floatUI;
     public float moveSpeed;
+    public CharacterAtt att;
     #endregion
 
     #region 私有字段
@@ -29,6 +30,7 @@ public class BaseCharacter
     {
         this.name = name;
         moveSpeed = CharacterCtrller.Ins.moveSpeed;
+        att = new CharacterAtt(100, 100, 100);
     }
     #endregion
 
@@ -75,11 +77,17 @@ public class BaseCharacter
             float dis = Vector3.Distance(targetPos, node.position);
             float moveDis = moveSpeed * Time.deltaTime;
 
+            // 设置转向
+            node.rotation = Quaternion.LookRotation((targetPos - node.position).normalized, Vector3.up);
+
             // 是否移动距离大于目标距离
             if (moveDis >= dis)
             {
                 // 直接设置到目标位置
                 node.position = targetPos;
+
+                // 减去体力
+                att.Vit.Add(-10);
 
                 // 还有下一个目标位置
                 if (_nextPathIdx < _listPath.Count - 1)
@@ -91,6 +99,9 @@ public class BaseCharacter
                 {
                     // 标记
                     isMoving = false;
+
+                    // 设置转向
+                    node.rotation = Quaternion.LookRotation(isMember ? Vector3.forward : Vector3.back, Vector3.up);
                 }
             }
             else

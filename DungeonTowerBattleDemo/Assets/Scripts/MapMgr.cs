@@ -231,10 +231,10 @@ public class MapMgr : SingletonScript<MapMgr>
         foreach (var item in listEnemies)
         {
             // 生成敌人预制体
-            enemy = Instantiate(prefabs[0]);
+            enemy = Instantiate(prefabs[1]);
 
             // 设置父节点
-            enemy.SetParent(characterNodes[0], false);
+            enemy.SetParent(characterNodes[1], false);
 
             // 设置位置
             enemy.position = GetCharacterPos(item);
@@ -247,9 +247,7 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 生成漂浮节点
             floatUI = Instantiate(pfbFloat, floatNode).GetComponent<CharacterFloatUI>();
-            floatUI.target = item.node;
-            floatUI.SetName(item.name);
-            item.floatUI = floatUI;
+            floatUI.Init(item);
         }
 
         // 遍历成员列表
@@ -257,10 +255,10 @@ public class MapMgr : SingletonScript<MapMgr>
         foreach (var item in listMembers)
         {
             // 生成敌人预制体
-            member = Instantiate(prefabs[1]);
+            member = Instantiate(prefabs[0]);
 
             // 设置父节点
-            member.SetParent(characterNodes[1], false);
+            member.SetParent(characterNodes[0], false);
 
             // 设置位置
             member.position = GetCharacterPos(item);
@@ -273,9 +271,7 @@ public class MapMgr : SingletonScript<MapMgr>
 
             // 生成漂浮节点
             floatUI = Instantiate(pfbFloat, floatNode).GetComponent<CharacterFloatUI>();
-            floatUI.target = item.node;
-            floatUI.SetName(item.name);
-            item.floatUI = floatUI;
+            floatUI.Init(item);
         }
     }
 

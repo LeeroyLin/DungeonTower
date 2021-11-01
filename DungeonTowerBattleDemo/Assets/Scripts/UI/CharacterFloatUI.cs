@@ -11,6 +11,8 @@ public class CharacterFloatUI : MonoBehaviour
     public Transform transVit;
     public Text textName;
     public Transform target;
+
+    public Vector2 offset;
     #endregion
 
     #region 私有字段
@@ -31,7 +33,6 @@ public class CharacterFloatUI : MonoBehaviour
     /// </summary>
     void Start()
     {
-        
     }
 
     /// <summary>
@@ -45,6 +46,24 @@ public class CharacterFloatUI : MonoBehaviour
     #endregion
 
     #region 公共方法
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    /// <param name="name"></param>
+    public void Init(BaseCharacter character)
+    {
+        // 注册事件
+        RegEvents(character);
+
+        // 设置节点
+        target = character.node;
+
+        // 刷新显示
+        SetHp(character.att.Hp.Value, character.att.Hp.Max);
+        SetMp(character.att.Mp.Value, character.att.Mp.Max);
+        SetVit(character.att.Vit.Value, character.att.Vit.Max);
+        SetName(character.name);
+    }
     public void SetHp(int hp, int max)
     {
         transHp.localScale = new Vector3(hp / (float)max, 1, 1);
@@ -63,7 +82,50 @@ public class CharacterFloatUI : MonoBehaviour
     }
     #endregion
 
+    #region 事件处理
+    /// <summary>
+    /// 血量改变
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="max"></param>
+    void OnHpChanged(int value, int max)
+    {
+        SetHp(value, max);
+    }
+
+    /// <summary>
+    /// 法力改变
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="max"></param>
+    void OnMpChanged(int value, int max)
+    {
+        SetMp(value, max);
+    }
+
+    /// <summary>
+    /// 体力改变
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="max"></param>
+    void OnVitChanged(int value, int max)
+    {
+        SetVit(value, max);
+    }
+    #endregion
+
     #region 其他方法
+    /// <summary>
+    /// 注册事件
+    /// </summary>
+    /// <param name="character"></param>
+    void RegEvents(BaseCharacter character)
+    {
+        character.att.Hp.OnChanged += OnHpChanged;
+        character.att.Mp.OnChanged += OnMpChanged;
+        character.att.Vit.OnChanged += OnVitChanged;
+    }
+
     /// <summary>
     /// 跟随
     /// </summary>
@@ -79,7 +141,7 @@ public class CharacterFloatUI : MonoBehaviour
         Vector3 viewport = Camera.main.WorldToViewportPoint(targetPos);
         viewport.x -= 0.5f;
         viewport.y -= 0.5f;
-        _rectTrans.anchoredPosition = new Vector2(viewport.x * 1920, viewport.y * 1080);
+        _rectTrans.anchoredPosition = new Vector2(viewport.x * 1920, viewport.y * 1080) + offset;
     }
     #endregion
 }
